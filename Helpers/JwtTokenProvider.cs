@@ -5,14 +5,9 @@ using System.Text;
 using Backend.Models;
 
 namespace Backend.Helpers;
-public class JwtTokenProvider
+public class JwtTokenProvider(JwtConfiguration config)
 {
-    private readonly JwtConfiguration _config;
-
-    public JwtTokenProvider(JwtConfiguration config)
-    {
-        _config = config;
-    }
+    private readonly JwtConfiguration _config = config;
 
     public string GenerateToken(string id, string email)
     {
@@ -27,8 +22,8 @@ public class JwtTokenProvider
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _config.Issuer,
-            audience: _config.Audience,
+            // issuer: _config.Issuer,
+            // audience: _config.Audience,
             claims: claims,
             expires: DateTime.Now.AddDays(_config.ExpireDays),
             signingCredentials: creds

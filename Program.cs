@@ -37,7 +37,7 @@ builder.Services.AddSwaggerGen(setup =>
             Type = ReferenceType.SecurityScheme
         }
     };
-
+    setup.SwaggerDoc("v1", new OpenApiInfo { Title = "GFS_backend", Version = "v1" });
 
     setup.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
 
@@ -46,6 +46,16 @@ builder.Services.AddSwaggerGen(setup =>
         { jwtSecurityScheme, Array.Empty<string>() }
     });
 });
+
+var connectionString = config.GetConnectionString("Default");
+builder.Services.AddDbContext<Context>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddIdentity<AuthUser, IdentityRole>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = false;
+}).AddEntityFrameworkStores<Context>();
 builder.Services
   .AddAuthentication(options =>
   {
@@ -54,11 +64,13 @@ builder.Services
       options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
   }).AddJwtBearer(options =>
   {
+    //   options.Authority = config.GetSection("JWT")["Issuer"];
+    //   options.Audience = config.GetSection("JWT")["Audience"];
       options.SaveToken = true;
       options.TokenValidationParameters = new()
       {
-          ValidateAudience = false,
           ValidateIssuer = false,
+          ValidateAudience = false,
           ValidateLifetime = true,
           ValidateIssuerSigningKey = true,
           IssuerSigningKey = new SymmetricSecurityKey
@@ -71,7 +83,7 @@ builder.Services
       {
           OnMessageReceived = context =>
           {
-              string? authorization = context.Request.Headers["Authorization"];
+              string? authorization = context.Request.Headers.Authorization;
               if (string.IsNullOrEmpty(authorization))
               {
                   context.NoResult();
@@ -82,18 +94,24 @@ builder.Services
               }
               return Task.CompletedTask;
           },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("Token validated successfully");
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("Authentication Failed: " + context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Console.WriteLine("OnChallenge: " + context.Error);
+                return Task.CompletedTask;
+            }
       };
   });
 builder.Services.AddAuthorization();
-
-var connectionString = config.GetConnectionString("Default");
-builder.Services.AddDbContext<Context>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-builder.Services.AddIdentity<AuthUser, IdentityRole>(options => {
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = false;
-  }).AddEntityFrameworkStores<Context>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
@@ -102,6 +120,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers().WithOpenApi();
