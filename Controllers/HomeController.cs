@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Backend.Helpers;
 using Backend.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Backend.Controllers
 {
@@ -19,10 +17,18 @@ namespace Backend.Controllers
         private readonly JwtTokenProvider _tokenProvider = tokenProvider;
         private readonly UserManager<AuthUser> _userManager = userManager;
 
-        [HttpGet]
-        public async Task<IActionResult> Me()
+        [HttpGet("[action]")]
+        public async Task<ActionResult<ProfileResponse>> Profile()
         {
-            return Ok($"{User.Identity?.Name ?? "Fuck you"}");
+            var Email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (Email == null) {
+                return Unauthorized("Failed to read bearer token. ReLogin please");
+            }
+            var user = await _userManager.FindByEmailAsync(Email);
+            if (user == null) {
+                return Unauthorized("Failed to read bearer token. ReLogin please");
+            }
+            return Ok(new ProfileResponse(user.UserName, user.Email));
         }
         
     }
