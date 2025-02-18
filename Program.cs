@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddCors(options =>
 {
@@ -61,6 +60,7 @@ builder.Services.AddSwaggerGen(setup =>
 });
 
 var connectionString = config.GetConnectionString("Default");
+Console.WriteLine(connectionString);
 builder.Services.AddDbContext<Context>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -138,4 +138,13 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers().WithOpenApi();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<Context>();
+    context.Database.Migrate();
+}
+
 app.Run();
