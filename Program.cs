@@ -15,11 +15,11 @@ var config = builder.Configuration;
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
-                      policy  =>
+                      policy =>
                       {
-                        policy.AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
+                          policy.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
                       });
 });
 
@@ -77,8 +77,8 @@ builder.Services
       options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
   }).AddJwtBearer(options =>
   {
-    //   options.Authority = config.GetSection("JWT")["Issuer"];
-    //   options.Audience = config.GetSection("JWT")["Audience"];
+      //   options.Authority = config.GetSection("JWT")["Issuer"];
+      //   options.Audience = config.GetSection("JWT")["Audience"];
       options.SaveToken = true;
       options.TokenValidationParameters = new()
       {
@@ -107,21 +107,21 @@ builder.Services
               }
               return Task.CompletedTask;
           },
-            OnTokenValidated = context =>
-            {
-                Console.WriteLine("Token validated successfully");
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine("Authentication Failed: " + context.Exception.Message);
-                return Task.CompletedTask;
-            },
-            OnChallenge = context =>
-            {
-                Console.WriteLine("OnChallenge: " + context.Error);
-                return Task.CompletedTask;
-            }
+          OnTokenValidated = context =>
+          {
+              Console.WriteLine("Token validated successfully");
+              return Task.CompletedTask;
+          },
+          OnAuthenticationFailed = context =>
+          {
+              Console.WriteLine("Authentication Failed: " + context.Exception.Message);
+              return Task.CompletedTask;
+          },
+          OnChallenge = context =>
+          {
+              Console.WriteLine("OnChallenge: " + context.Error);
+              return Task.CompletedTask;
+          }
       };
   });
 builder.Services.AddAuthorization();
