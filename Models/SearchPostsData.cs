@@ -1,4 +1,4 @@
 
 
 namespace Backend.Models;
-public record SearchPostsResponse(List<Post> post);
+public record SearchPostsResponse(List<PostDTO> post);
