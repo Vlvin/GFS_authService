@@ -1,4 +1,4 @@
 
 
 namespace Backend.Models;
-public record ProfileResponse(string Username, string Email);
+public record ProfileResponse(string Id, string Username, string Email);

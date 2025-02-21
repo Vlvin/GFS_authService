@@ -28,7 +28,9 @@ namespace Backend.Controllers
             if (user == null) // Unexisted User
             {
                 return Unauthorized("Email or password is incorrect (spoiler Email)");
-            } else {
+            }
+            else
+            {
                 var userIsAuthenticated = await _userManager.CheckPasswordAsync(user, request.Password);
                 if (!userIsAuthenticated)
                 {
@@ -62,7 +64,7 @@ namespace Backend.Controllers
 
                 result.Errors.Select(x => sb.Append($"{x.Description.Length}"));
                 result.Errors.Select(x => sb.Append($"{x.Description};\n"));
-                
+
                 return Conflict(sb.ToString());
             }
             user = await _userManager.FindByEmailAsync(request.Email); // renew user
@@ -80,24 +82,12 @@ namespace Backend.Controllers
         public async Task<IActionResult> Authorize()
         {
             var Email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (Email == null) {
+            if (Email == null)
+            {
                 return Unauthorized("Failed to read bearer token. ReLogin please");
             }
             var user = await _userManager.FindByEmailAsync(Email);
             return Ok($"Authorized as {user?.UserName} : {user?.Email}");
-            // return Ok($"Vanga says your username is {user?.UserName}");
-
-            // var handler = new JwtSecurityTokenHandler();
-            // var tokenS = handler.ReadJwtToken(token);
-
-            // var userEmail = tokenS.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Email)?.Value;
-
-            // if (string.IsNullOrEmpty(userEmail))
-            //     return Unauthorized("Failed to read bearer token. ReLogin please");
-            // var user = await _userManager.FindByEmailAsync(userEmail);
-            // if (user == null)
-            //     return Unauthorized("Somehow");
-            // return Ok($"Authorized as {user?.UserName} : {user?.Email}");
         }
     }
 }

@@ -17,6 +17,7 @@ public class AuthUser : IdentityUser
 
 public class UserDTO(AuthUser user)
 {
+    public string Id { get; set; } = user.Id;
     public string Email { get; set; } = user.Email;
     public string UserName { get; set; } = user.UserName;
 }

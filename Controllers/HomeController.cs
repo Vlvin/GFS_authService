@@ -16,19 +16,26 @@ namespace Backend.Controllers
         private readonly UserManager<AuthUser> _userManager = userManager;
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<ProfileResponse>> Profile()
+        public async Task<ActionResult<ProfileResponse>> Me()
         {
-            var Email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (Email == null)
-            {
-                return Unauthorized("Failed to read bearer token. ReLogin please");
-            }
-            var user = await _userManager.FindByEmailAsync(Email);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (email == null)
+                return Unauthorized("Failed to get email, bad token");
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return Unauthorized("Failed to get user, bad token");
+            return Ok(new ProfileResponse(user.Id, user.UserName, user.Email));
+        }
+
+        [HttpGet("[action]")]
+        public async Task<ActionResult<ProfileResponse>> Profile(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return Unauthorized("Failed to read bearer token. ReLogin please");
+                return NotFound("No such user");
             }
-            return Ok(new ProfileResponse(user.UserName, user.Email));
+            return Ok(new ProfileResponse(user.Id, user.UserName, user.Email));
         }
 
     }
