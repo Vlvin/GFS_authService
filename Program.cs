@@ -60,7 +60,6 @@ builder.Services.AddSwaggerGen(setup =>
 });
 
 var connectionString = config.GetConnectionString("Default");
-Console.WriteLine(connectionString);
 builder.Services.AddDbContext<Context>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
