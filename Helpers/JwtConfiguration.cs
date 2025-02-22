@@ -19,8 +19,8 @@ public class JwtConfiguration
         var section = configuration.GetSection("JWT");
 
         //      Issuer = section[nameof(Issuer)] ?? throw new Exception("You should provide Issuer in Configuration");
-        //      Secret = section[nameof(Secret)] ?? throw new Exception("You should provide Secret in Configuration");
-        Audience = section[nameof(Audience)] ?? throw new Exception("You should provide Audience in Configuration");
+        Secret = section[nameof(Secret)] ?? throw new Exception("You should provide Secret in Configuration");
+        // Audience = section[nameof(Audience)] ?? throw new Exception("You should provide Audience in Configuration");
         ExpireDays = Convert.ToInt32(section[nameof(ExpireDays)], CultureInfo.InvariantCulture);
     }
 }
