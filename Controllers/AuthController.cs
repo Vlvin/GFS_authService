@@ -77,17 +77,20 @@ namespace Backend.Controllers
             var token = _tokenProvider.GenerateToken(userId, userEmail);
             return Ok(new RegisterResponse(token));
         }
-        [Authorize]
         [HttpGet("[action]")]
-        public async Task<IActionResult> Authorize()
+        public async Task<ActionResult<AuthorizeResponse>> Authorize()
         {
             var Email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (Email == null)
             {
-                return Unauthorized("Failed to read bearer token. ReLogin please");
+                return Ok(new AuthorizeResponse(false, "", ""));
             }
             var user = await _userManager.FindByEmailAsync(Email);
-            return Ok($"Authorized as {user?.UserName} : {user?.Email}");
+            if (user == null)
+            {
+                return Ok(new AuthorizeResponse(false, "", ""));
+            }
+            return Ok(new AuthorizeResponse(true, user?.UserName, user?.Email));
         }
     }
 }
