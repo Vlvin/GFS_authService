@@ -126,7 +126,7 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-if (true || app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
